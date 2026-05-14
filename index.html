@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Saç Bakım Takip</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;min-height:100vh;display:flex;justify-content:center;padding:1rem}
+.app{width:100%;max-width:420px;padding-bottom:3rem}
+
+.hdr{background:#1a1a2e;border-radius:16px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.logo{width:46px;height:46px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;flex-direction:column;font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.1}
+.logo span{font-size:7px;color:#666;font-weight:400}
+.hdr h1{font-size:14px;font-weight:600;color:white}
+.hdr p{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px}
+
+.sec{font-size:11px;font-weight:600;color:#888;letter-spacing:.7px;text-transform:uppercase;margin:1.2rem 0 .55rem}
+
+/* Uyum halkaları */
+.uyum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem}
+.uyum-card{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:14px;text-align:center}
+.uyum-title{font-size:11px;color:#888;margin-bottom:10px;font-weight:600}
+.ring-wrap{position:relative;width:84px;height:84px;margin:0 auto 10px}
+.ring-wrap svg{width:84px;height:84px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#f0f0f0;stroke-width:9}
+.ring-fg{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dasharray .7s ease}
+.ring-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:100%}
+.ring-pct{font-size:19px;font-weight:700;color:#1a1a2e;line-height:1}
+.ring-sub-txt{font-size:9px;color:#aaa;margin-top:2px}
+.uyum-detail{font-size:11px;color:#888;line-height:1.6}
+.uyum-detail strong{color:#1a1a2e;font-weight:700}
+
+/* Özet kartları */
+.stats2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem}
+.stat{background:white;border:1px solid #e8e8e8;border-radius:10px;padding:10px 12px;text-align:center}
+.stat-n{font-size:22px;font-weight:700;color:#1a1a2e}
+.stat-l{font-size:10px;color:#888;margin-top:2px}
+
+/* Özet aktivite */
+.summary-card{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:14px;margin-bottom:.75rem}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f5f5f5}
+.summary-row:last-child{border-bottom:none}
+.summary-label{font-size:12px;color:#888}
+.summary-val{font-size:12px;font-weight:700;color:#1a1a2e}
+.summary-val.green{color:#0f6e56}
+.summary-val.blue{color:#0c447c}
+.summary-val.red{color:#a32d2d}
+
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:.75rem}
+.tab{flex:1;padding:8px;border-radius:10px;border:1px solid #e8e8e8;background:white;font-size:11px;font-weight:600;color:#888;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit}
+.tab.active{background:#1a1a2e;color:white;border-color:#1a1a2e}
+
+/* Takvim */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav button{background:white;border:1px solid #e8e8e8;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:16px;color:#1a1a2e;font-family:inherit}
+.cal-nav span{font-size:14px;font-weight:600;color:#1a1a2e}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{text-align:center;font-size:10px;color:#aaa;padding:4px 0;font-weight:600}
+.cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:11px;position:relative;font-weight:500;cursor:default;color:#ccc}
+.cd.on{cursor:pointer;color:#1a1a2e}
+.cd.on:hover{background:#f0f0f0}
+.cd.today{border:2px solid #1d9e75 !important;font-weight:700}
+.cd.full{background:#1d9e75 !important;color:white !important}
+.cd.half{background:#9fe1cb !important;color:#085041 !important}
+.cd.miss{background:#f5f5f5;color:#999}
+.cdot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.8);position:absolute;bottom:3px;left:50%;transform:translateX(-50%)}
+.legend{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#888}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.day-detail{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:12px 14px;margin-top:10px}
+.dd-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px}
+.dose-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.dose-row:last-child{border-bottom:none}
+.dose-chk{width:26px;height:26px;border-radius:50%;border:2px solid #ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.dose-chk.on{background:#1d9e75;border-color:#1d9e75}
+.dose-chk svg{display:none}
+.dose-chk.on svg{display:block}
+.dose-name{font-size:12px;color:#1a1a2e;font-weight:600}
+.dose-sub{font-size:11px;color:#888}
+.bm{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#faeeda;color:#633806;white-space:nowrap}
+.be{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#eeedfe;color:#26215c;white-space:nowrap}
+
+/* Seanslar */
+.sessions-list{display:flex;flex-direction:column;gap:8px}
+.sess-row{background:white;border:1px solid #e8e8e8;border-radius:12px;padding:12px 14px}
+.sess-top{display:flex;align-items:center;gap:10px}
+.sess-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sn-done{background:#e1f5ee;color:#085041}
+.sn-active{background:#e6f1fb;color:#0c447c}
+.sn-wait{background:#f5f5f5;color:#888}
+.sess-info{flex:1}
+.sess-label{font-size:13px;font-weight:700;color:#1a1a2e}
+.sess-date-text{font-size:11px;color:#888;margin-top:2px}
+.sess-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.btn-ok{font-size:11px;padding:5px 10px;border:1px solid #1d9e75;border-radius:8px;background:#e1f5ee;color:#085041;cursor:pointer;font-family:inherit;font-weight:600}
+.btn-edit{font-size:11px;padding:5px 10px;border:1px solid #e8e8e8;border-radius:8px;background:white;color:#888;cursor:pointer;font-family:inherit;font-weight:600}
+.badge-ok{font-size:10px;padding:4px 10px;border-radius:20px;background:#e1f5ee;color:#085041;font-weight:700}
+.edit-panel{background:#f9f9f9;border-radius:10px;padding:10px 12px;margin-top:8px;display:none}
+.edit-panel.open{display:block}
+.edit-panel label{font-size:11px;color:#888;display:block;margin-bottom:5px;font-weight:600}
+.edit-panel input[type=date]{width:100%;font-size:13px;padding:8px 10px;border:1px solid #e8e8e8;border-radius:8px;background:white;color:#1a1a2e;font-family:inherit}
+.edit-actions{display:flex;gap:6px;margin-top:8px}
+.btn-save{flex:1;padding:8px;border-radius:8px;border:none;background:#1a1a2e;color:white;font-size:12px;cursor:pointer;font-family:inherit;font-weight:700}
+.btn-cancel{padding:8px 14px;border-radius:8px;border:1px solid #e8e8e8;background:white;color:#888;font-size:12px;cursor:pointer;font-family:inherit}
+
+/* Notlar */
+.note-card{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:12px 14px}
+.note-card textarea{width:100%;border:none;background:transparent;font-size:13px;color:#1a1a2e;resize:none;outline:none;font-family:inherit;line-height:1.6}
+.note-footer{display:flex;justify-content:flex-end;margin-top:6px}
+.note-footer button{font-size:12px;padding:6px 16px;border-radius:20px;border:1px solid #e8e8e8;background:white;color:#1a1a2e;cursor:pointer;font-family:inherit;font-weight:600}
+.saved-notes{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.saved-note{background:white;border:1px solid #e8e8e8;border-radius:10px;padding:10px 14px}
+.saved-note-d{font-size:10px;color:#aaa;margin-bottom:3px;font-weight:600}
+.saved-note-t{font-size:12px;color:#444;line-height:1.5;white-space:pre-wrap}
+
+/* Arşiv */
+.archive-upload{background:white;border:2px dashed #e8e8e8;border-radius:14px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px;transition:border-color .15s}
+.archive-upload:hover{border-color:#1d9e75}
+.archive-upload input{display:none}
+.upload-icon{font-size:28px;margin-bottom:8px;color:#ccc}
+.upload-text{font-size:13px;color:#888;font-weight:500}
+.upload-sub{font-size:11px;color:#bbb;margin-top:4px}
+.archive-form{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:14px;margin-bottom:12px;display:none}
+.archive-form.open{display:block}
+.arch-preview{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:12px}
+.arch-form-row{margin-bottom:10px}
+.arch-form-row label{font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:4px}
+.arch-form-row input[type=date]{width:100%;font-size:13px;padding:8px 10px;border:1px solid #e8e8e8;border-radius:8px;color:#1a1a2e;font-family:inherit}
+.arch-form-row textarea{width:100%;font-size:13px;padding:8px 10px;border:1px solid #e8e8e8;border-radius:8px;color:#1a1a2e;font-family:inherit;resize:none;outline:none;line-height:1.5}
+.arch-save-btn{width:100%;padding:10px;border-radius:10px;border:none;background:#1a1a2e;color:white;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700}
+.archive-grid{display:flex;flex-direction:column;gap:12px}
+.archive-item{background:white;border:1px solid #e8e8e8;border-radius:14px;overflow:hidden}
+.arch-img{width:100%;max-height:220px;object-fit:cover;display:block}
+.arch-info{padding:12px 14px}
+.arch-date{font-size:11px;color:#aaa;font-weight:600;margin-bottom:4px}
+.arch-note{font-size:13px;color:#444;line-height:1.5}
+.arch-delete{float:right;font-size:11px;color:#e24b4a;border:none;background:none;cursor:pointer;font-family:inherit;padding:0;margin-top:2px}
+.empty-archive{text-align:center;padding:2rem;color:#bbb;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hdr">
+  <div class="logo">RA<span>GÜZELLİK</span></div>
+  <div><h1>Saç Bakım Programı</h1><p>Rukiye Altun · Bahçeşehir · 14 May 2026</p></div>
+</div>
+
+<div class="sec">Uyum Takibi</div>
+<div class="uyum-grid">
+  <div class="uyum-card">
+    <div class="uyum-title">İlaç Uyumu</div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 84 84"><circle class="ring-bg" cx="42" cy="42" r="34"/><circle class="ring-fg" id="drugRing" cx="42" cy="42" r="34" stroke="#1d9e75" stroke-dasharray="0 214"/></svg>
+      <div class="ring-label"><div class="ring-pct" id="drugPct">0%</div><div class="ring-sub-txt">uyum</div></div>
+    </div>
+    <div class="uyum-detail" id="drugDetail">Henüz veri yok</div>
+  </div>
+  <div class="uyum-card">
+    <div class="uyum-title">Seans Uyumu</div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 84 84"><circle class="ring-bg" cx="42" cy="42" r="34"/><circle class="ring-fg" id="sessRing" cx="42" cy="42" r="34" stroke="#185fa5" stroke-dasharray="0 214"/></svg>
+      <div class="ring-label"><div class="ring-pct" id="sessPct">0%</div><div class="ring-sub-txt">uyum</div></div>
+    </div>
+    <div class="uyum-detail" id="sessDetail">Henüz veri yok</div>
+  </div>
+</div>
+
+<div class="stats2">
+  <div class="stat"><div class="stat-n" id="statDays">0</div><div class="stat-l">Geçen gün</div></div>
+  <div class="stat"><div class="stat-n" id="statDone">0</div><div class="stat-l">Tamamlanan seans</div></div>
+</div>
+
+<div class="sec">Bu Hafta Ne Yaptın</div>
+<div class="summary-card" id="summaryCard"></div>
+
+<div class="sec">Görünüm</div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('cal')">Takvim</button>
+  <button class="tab" onclick="switchTab('sess')">Seanslar</button>
+  <button class="tab" onclick="switchTab('arch')">Arşiv</button>
+  <button class="tab" onclick="switchTab('notes')">Notlar</button>
+</div>
+
+<!-- TAKVİM -->
+<div id="tabCal">
+  <div class="cal-nav">
+    <button onclick="prevMonth()">&#8249;</button>
+    <span id="calTitle"></span>
+    <button onclick="nextMonth()">&#8250;</button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#1d9e75"></div>Tam</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#9fe1cb"></div>Yarım</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f5f5f5;border:1px solid #eee"></div>Eksik</div>
+  </div>
+  <div class="day-detail" id="dayDetail" style="display:none">
+    <div class="dd-title" id="ddTitle"></div>
+    <div id="ddDoses"></div>
+  </div>
+</div>
+
+<!-- SEANSLAR -->
+<div id="tabSess" style="display:none">
+  <div class="sessions-list" id="sessionsList"></div>
+</div>
+
+<!-- ARŞİV -->
+<div id="tabArch" style="display:none">
+  <div class="archive-upload" onclick="document.getElementById('archFileIn').click()">
+    <input type="file" id="archFileIn" accept="image/*" onchange="handleArchFile(event)">
+    <div class="upload-icon">&#128247;</div>
+    <div class="upload-text">Fotoğraf ekle</div>
+    <div class="upload-sub">Saç durumu, seans sonrası, değişimler</div>
+  </div>
+  <div class="archive-form" id="archiveForm">
+    <img id="archPreview" class="arch-preview" src="" alt="">
+    <div class="arch-form-row">
+      <label>Tarih</label>
+      <input type="date" id="archDate">
+    </div>
+    <div class="arch-form-row">
+      <label>Not (isteğe bağlı)</label>
+      <textarea id="archNote" rows="2" placeholder="Saçların nasıl görünüyor? Değişimler..."></textarea>
+    </div>
+    <button class="arch-save-btn" onclick="saveArchive()">Arşive Kaydet</button>
+  </div>
+  <div class="archive-grid" id="archiveGrid"></div>
+</div>
+
+<!-- NOTLAR -->
+<div id="tabNotes" style="display:none">
+  <div class="note-card">
+    <textarea id="noteIn" rows="3" placeholder="Not ekle... (değişimler, gözlemler, yan etkiler)"></textarea>
+    <div class="note-footer"><button onclick="saveNote()">Kaydet</button></div>
+  </div>
+  <div class="saved-notes" id="savedNotes"></div>
+</div>
+
+</div>
+<script>
+var DRUGS=[{id:'h',name:'KRCderma H-360\u00b0 PLUS',desc:'Saw Palmetto + Biotin'},{id:'s',name:'Topikal Magistral Serum',desc:'Hair Loss serum'}];
+var TIMES=['morning','evening'];
+var MONTHS=['Ocak','\u015eubat','Mart','Nisan','May\u0131s','Haziran','Temmuz','A\u011fustos','Eyl\u00fcl','Ekim','Kas\u0131m','Aral\u0131k'];
+var DOWS=['Pzt','Sal','\u00c7ar','Per','Cum','Cmt','Paz'];
+var CIRC=2*Math.PI*34;
+var START_Y=2026,START_M=5,START_D=14;
+
+function mkDate(y,m,d){return new Date(y,m-1,d);}
+function parseDs(ds){var p=ds.split('-');return mkDate(+p[0],+p[1],+p[2]);}
+function todayStr(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function fmtDs(dt){return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
+
+var data={doses:{},sessions:[],notes:[],archive:[]};
+try{var raw=localStorage.getItem('sacv5');if(raw)data=JSON.parse(raw);}catch(e){}
+if(!data.doses)data.doses={};
+if(!data.notes)data.notes=[];
+if(!data.archive)data.archive=[];
+if(!data.sessions||data.sessions.length===0){
+  data.sessions=[];
+  for(var si=0;si<6;si++){
+    var sd=mkDate(START_Y,START_M,START_D);sd.setMonth(sd.getMonth()+si);
+    data.sessions.push({num:si+1,date:fmtDs(sd),done:si===0});
+  }
+  save();
+}
+
+function save(){try{localStorage.setItem('sacv5',JSON.stringify(data));}catch(e){}}
+function doseKey(ds,dr,t){return ds+'_'+dr+'_'+t;}
+function isDone(ds,dr,t){return!!data.doses[doseKey(ds,dr,t)];}
+function toggleDose(ds,dr,t){
+  var k=doseKey(ds,dr,t);
+  if(data.doses[k])delete data.doses[k];else data.doses[k]=1;
+  save();updateAll();renderCal();renderDayDetail(ds);
+}
+function dayCount(ds){
+  var done=0,total=DRUGS.length*TIMES.length;
+  for(var i=0;i<DRUGS.length;i++)for(var j=0;j<TIMES.length;j++)if(isDone(ds,DRUGS[i].id,TIMES[j]))done++;
+  return{done:done,total:total};
+}
+
+function updateAll(){
+  var now=new Date();
+  var start=mkDate(START_Y,START_M,START_D);
+  var days=Math.max(0,Math.floor((now-start)/86400000));
+  document.getElementById('statDays').textContent=days;
+
+  // Mevcut periyot: son tamamlanan seanstan sonraki seansa kadar
+  var doneCnt=0;
+  for(var i=0;i<data.sessions.length;i++)if(data.sessions[i].done)doneCnt++;
+  var periodStart=doneCnt>0?parseDs(data.sessions[doneCnt-1].date):mkDate(START_Y,START_M,START_D);
+  var periodEnd=doneCnt<6?parseDs(data.sessions[doneCnt].date):null;
+  var countUntil=periodEnd&&periodEnd<=now?periodEnd:now;
+
+  var td=0,tp=0;
+  var cur=new Date(periodStart.getTime());
+  while(cur<=countUntil){
+    var r=dayCount(fmtDs(cur));td+=r.done;tp+=r.total;
+    cur.setDate(cur.getDate()+1);
+  }
+  var totalDays=periodEnd?Math.round((periodEnd-periodStart)/86400000):days;
+  var dp=tp>0?Math.round(td/tp*100):0;
+  document.getElementById('drugPct').textContent=dp+'%';
+  document.getElementById('drugRing').setAttribute('stroke-dasharray',(dp/100*CIRC).toFixed(1)+' '+CIRC.toFixed(1));
+  document.getElementById('drugDetail').innerHTML='<strong>'+td+'</strong>/'+tp+' doz<br>'+totalDays+' g\u00fcnl\u00fck periyot';
+
+  var ds=0;for(var i=0;i<data.sessions.length;i++)if(data.sessions[i].done)ds++;
+  var sp=Math.round(ds/6*100);
+  document.getElementById('sessPct').textContent=sp+'%';
+  document.getElementById('sessRing').setAttribute('stroke-dasharray',(sp/100*CIRC).toFixed(1)+' '+CIRC.toFixed(1));
+  document.getElementById('sessDetail').innerHTML='<strong>'+ds+'</strong>/6 seans<br>tamamland\u0131';
+  document.getElementById('statDone').textContent=ds;
+
+  renderSummary();
+}
+
+function renderSummary(){
+  var now=new Date();
+  var dow=(now.getDay()+6)%7;
+  var weekStart=new Date(now);weekStart.setDate(now.getDate()-dow);
+  var weekDone=0,weekTotal=0,fullDays=0,missDays=0;
+  for(var i=0;i<7;i++){
+    var d=new Date(weekStart);d.setDate(weekStart.getDate()+i);
+    if(d>now)break;
+    var ds=fmtDs(d);
+    var start=mkDate(START_Y,START_M,START_D);
+    if(d<start)continue;
+    var r=dayCount(ds);
+    weekDone+=r.done;weekTotal+=r.total;
+    if(r.done===r.total&&r.done>0)fullDays++;
+    else if(r.done===0)missDays++;
+  }
+  var pct=weekTotal>0?Math.round(weekDone/weekTotal*100):0;
+  var pctCls=pct>=80?'green':pct>=50?'blue':'red';
+  var nextSess='—';
+  var doneCnt=data.sessions.filter(function(s){return s.done;}).length;
+  if(doneCnt<6){var ns=data.sessions[doneCnt];if(ns){var nd=parseDs(ns.date);nextSess=nd.toLocaleDateString('tr-TR',{day:'numeric',month:'long'});}}
+  document.getElementById('summaryCard').innerHTML=
+    '<div class="summary-row"><span class="summary-label">Bu hafta ilaç uyumu</span><span class="summary-val '+pctCls+'">%'+pct+'</span></div>'
+    +'<div class="summary-row"><span class="summary-label">Tam tamamlanan gün</span><span class="summary-val green">'+fullDays+' gün</span></div>'
+    +'<div class="summary-row"><span class="summary-label">Hiç alınmayan gün</span><span class="summary-val '+(missDays>0?'red':'green')+'">'+missDays+' gün</span></div>'
+    +'<div class="summary-row"><span class="summary-label">Sonraki seans</span><span class="summary-val blue">'+nextSess+'</span></div>'
+    +'<div class="summary-row"><span class="summary-label">Toplam arşiv fotoğrafı</span><span class="summary-val">'+data.archive.length+' foto</span></div>';
+}
+
+
+var CY=new Date().getFullYear(),CM=new Date().getMonth();
+function renderCal(){
+  document.getElementById('calTitle').textContent=MONTHS[CM]+' '+CY;
+  var html='';
+  for(var i=0;i<DOWS.length;i++)html+='<div class="cal-dow">'+DOWS[i]+'</div>';
+  var first=new Date(CY,CM,1);
+  var sd=(first.getDay()+6)%7;
+  var nd=new Date(CY,CM+1,0).getDate();
+  var ts=todayStr();
+  var startDt=mkDate(START_Y,START_M,START_D);
+  for(var i=0;i<sd;i++)html+='<div class="cd"></div>';
+  for(var d=1;d<=nd;d++){
+    var ds=CY+'-'+String(CM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var dt=parseDs(ds);
+    var active=dt>=startDt;
+    var cls='cd';var dot='';
+    if(active){
+      var r=dayCount(ds);
+      if(r.done===r.total&&r.done>0){cls+=' on full';dot='<div class="cdot"></div>';}
+      else if(r.done>0){cls+=' on half';}
+      else{cls+=' on miss';}
+    }
+    if(ds===ts)cls+=' today';
+    html+='<div class="'+cls+'" onclick="clickDay(\''+ds+'\')">'+d+dot+'</div>';
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+function clickDay(ds){
+  var dt=parseDs(ds);if(dt<mkDate(START_Y,START_M,START_D))return;
+  renderDayDetail(ds);
+  document.getElementById('dayDetail').style.display='block';
+  setTimeout(function(){document.getElementById('dayDetail').scrollIntoView({behavior:'smooth',block:'nearest'});},50);
+}
+function renderDayDetail(ds){
+  var dt=parseDs(ds);
+  document.getElementById('ddTitle').textContent=dt.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var html='';
+  var slots=[{t:'morning',l:'Sabah',b:'bm'},{t:'evening',l:'Ak\u015fam',b:'be'}];
+  for(var si=0;si<slots.length;si++){
+    for(var di=0;di<DRUGS.length;di++){
+      var sl=slots[si];var dr=DRUGS[di];var on=isDone(ds,dr.id,sl.t);
+      html+='<div class="dose-row"><div class="dose-chk'+(on?' on':'')+'" onclick="toggleDose(\''+ds+'\',\''+dr.id+'\',\''+sl.t+'\')">'
+        +'<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4,8 9,2.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+        +'<div style="flex:1"><div class="dose-name">'+dr.name+'</div><div class="dose-sub">'+dr.desc+'</div></div>'
+        +'<span class="'+sl.b+'">'+sl.l+'</span></div>';
+    }
+  }
+  document.getElementById('ddDoses').innerHTML=html;
+}
+function prevMonth(){CM--;if(CM<0){CM=11;CY--;}renderCal();}
+function nextMonth(){CM++;if(CM>11){CM=0;CY++;}renderCal();}
+
+function renderSessions(){
+  var html='';var dc=0;
+  for(var i=0;i<data.sessions.length;i++)if(data.sessions[i].done)dc++;
+  for(var i=0;i<data.sessions.length;i++){
+    var s=data.sessions[i];var dt=parseDs(s.date);
+    var lbl=dt.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+    var nc=s.done?'sn-done':(i===dc?'sn-active':'sn-wait');
+    html+='<div class="sess-row"><div class="sess-top"><div class="sess-num '+nc+'">'+s.num+'</div>'
+      +'<div class="sess-info"><div class="sess-label">Seans '+s.num+'</div><div class="sess-date-text">'+lbl+'</div></div>'
+      +'<div class="sess-actions">'
+      +(s.done?'<span class="badge-ok">Tamam</span>':'<button class="btn-ok" onclick="markDone('+i+')">Tamam</button><button class="btn-edit" onclick="openEdit('+i+')">D\u00fczenle</button>')
+      +'</div></div>'
+      +'<div class="edit-panel" id="ep'+i+'"><label>Yeni tarih</label>'
+      +'<input type="date" id="ei'+i+'" value="'+s.date+'">'
+      +'<div class="edit-actions"><button class="btn-save" onclick="saveSess('+i+')">Kaydet</button><button class="btn-cancel" onclick="closeEdit('+i+')">\u0130ptal</button></div></div></div>';
+  }
+  document.getElementById('sessionsList').innerHTML=html;
+}
+function markDone(i){data.sessions[i].done=true;save();updateAll();renderSessions();}
+function openEdit(i){document.getElementById('ep'+i).classList.add('open');}
+function closeEdit(i){document.getElementById('ep'+i).classList.remove('open');}
+function saveSess(i){var v=document.getElementById('ei'+i).value;if(!v)return;data.sessions[i].date=v;save();closeEdit(i);renderSessions();}
+
+/* ARŞİV */
+var pendingImageData=null;
+function handleArchFile(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    pendingImageData=ev.target.result;
+    document.getElementById('archPreview').src=pendingImageData;
+    document.getElementById('archDate').value=todayStr();
+    document.getElementById('archNote').value='';
+    document.getElementById('archiveForm').classList.add('open');
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+function saveArchive(){
+  if(!pendingImageData)return;
+  var date=document.getElementById('archDate').value||todayStr();
+  var note=document.getElementById('archNote').value.trim();
+  data.archive.unshift({date:date,note:note,img:pendingImageData});
+  save();
+  pendingImageData=null;
+  document.getElementById('archiveForm').classList.remove('open');
+  renderArchive();
+  updateAll();
+}
+function deleteArchive(i){
+  data.archive.splice(i,1);save();renderArchive();updateAll();
+}
+function renderArchive(){
+  var grid=document.getElementById('archiveGrid');
+  if(data.archive.length===0){
+    grid.innerHTML='<div class="empty-archive">Henüz fotoğraf yok.<br>Değişimlerini kaydetmeye başla!</div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<data.archive.length;i++){
+    var a=data.archive[i];
+    var dt=parseDs(a.date);
+    var lbl=dt.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+    html+='<div class="archive-item">'
+      +'<img class="arch-img" src="'+a.img+'" alt="">'
+      +'<div class="arch-info">'
+      +'<div class="arch-date">'+lbl+'<button class="arch-delete" onclick="deleteArchive('+i+')">Sil</button></div>'
+      +(a.note?'<div class="arch-note">'+a.note+'</div>':'')
+      +'</div></div>';
+  }
+  grid.innerHTML=html;
+}
+
+function saveNote(){var v=document.getElementById('noteIn').value.trim();if(!v)return;data.notes.unshift({date:todayStr(),text:v});save();renderNotes();document.getElementById('noteIn').value='';}
+function renderNotes(){
+  var html='';
+  for(var i=0;i<data.notes.length;i++){var n=data.notes[i];var dt=parseDs(n.date);html+='<div class="saved-note"><div class="saved-note-d">'+dt.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})+'</div><div class="saved-note-t">'+n.text+'</div></div>';}
+  document.getElementById('savedNotes').innerHTML=html;
+}
+
+function switchTab(t){
+  document.getElementById('tabCal').style.display=t==='cal'?'block':'none';
+  document.getElementById('tabSess').style.display=t==='sess'?'block':'none';
+  document.getElementById('tabArch').style.display=t==='arch'?'block':'none';
+  document.getElementById('tabNotes').style.display=t==='notes'?'block':'none';
+  var tabs=document.querySelectorAll('.tab');var names=['cal','sess','arch','notes'];
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',names[i]===t);
+  if(t==='sess')renderSessions();
+  if(t==='arch')renderArchive();
+  if(t==='notes')renderNotes();
+}
+
+updateAll();renderCal();
+renderDayDetail(todayStr());
+document.getElementById('dayDetail').style.display='block';
+</script>
+</body>
+</html>
