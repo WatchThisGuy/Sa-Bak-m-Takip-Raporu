@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Saç Bakım Takip</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;min-height:100vh;display:flex;justify-content:center;padding:1rem}
+.app{width:100%;max-width:420px;padding-bottom:3rem}
+.hdr{background:#1a1a2e;border-radius:16px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.logo{width:46px;height:46px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;flex-direction:column;font-size:12px;font-weight:600;color:#1a1a2e;line-height:1.1}
+.logo span{font-size:7px;color:#666;font-weight:400}
+.hdr h1{font-size:14px;font-weight:600;color:white}
+.hdr p{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px}
+.sec{font-size:11px;font-weight:600;color:#888;letter-spacing:.7px;text-transform:uppercase;margin:1.2rem 0 .55rem}
+
+.uyum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.75rem}
+.uyum-card{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:14px;text-align:center}
+.uyum-title{font-size:11px;color:#888;margin-bottom:10px;font-weight:600;letter-spacing:.3px}
+.ring-wrap{position:relative;width:84px;height:84px;margin:0 auto 10px}
+.ring-wrap svg{width:84px;height:84px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#f0f0f0;stroke-width:9}
+.ring-fg{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dasharray .7s ease}
+.ring-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;width:100%}
+.ring-pct{font-size:19px;font-weight:700;color:#1a1a2e;line-height:1}
+.ring-sub-txt{font-size:9px;color:#aaa;margin-top:2px}
+.uyum-detail{font-size:11px;color:#888;line-height:1.6}
+.uyum-detail strong{color:#1a1a2e;font-weight:700}
+
+.stats2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:white;border:1px solid #e8e8e8;border-radius:10px;padding:10px 12px;text-align:center}
+.stat-n{font-size:22px;font-weight:700;color:#1a1a2e}
+.stat-l{font-size:10px;color:#888;margin-top:2px}
+
+.tabs{display:flex;gap:6px;margin-bottom:.75rem}
+.tab{flex:1;padding:8px;border-radius:10px;border:1px solid #e8e8e8;background:white;font-size:12px;font-weight:600;color:#888;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit}
+.tab.active{background:#1a1a2e;color:white;border-color:#1a1a2e}
+
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav button{background:white;border:1px solid #e8e8e8;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:16px;color:#1a1a2e;font-family:inherit}
+.cal-nav span{font-size:14px;font-weight:600;color:#1a1a2e}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{text-align:center;font-size:10px;color:#aaa;padding:4px 0;font-weight:600}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:11px;color:#ccc;position:relative;cursor:default;font-weight:500}
+.cal-day.clickable{cursor:pointer}
+.cal-day.today{border:2px solid #1d9e75;color:#1a1a2e}
+.cal-day.full{background:#1d9e75;color:white}
+.cal-day.half{background:#9fe1cb;color:#085041}
+.cal-day.miss{background:#f09595;color:#791f1f}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.8);position:absolute;bottom:3px;left:50%;transform:translateX(-50%)}
+
+.day-detail{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:12px 14px;margin-top:10px}
+.dd-title{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:10px}
+.dose-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.dose-row:last-child{border-bottom:none}
+.dose-chk{width:26px;height:26px;border-radius:50%;border:2px solid #ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.dose-chk.on{background:#1d9e75;border-color:#1d9e75}
+.dose-chk svg{display:none}
+.dose-chk.on svg{display:block}
+.dose-name{font-size:12px;color:#1a1a2e;font-weight:600}
+.dose-sub{font-size:11px;color:#888}
+.badge-m{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#faeeda;color:#633806;white-space:nowrap}
+.badge-e{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#eeedfe;color:#26215c;white-space:nowrap}
+
+.legend{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#888}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+.sessions-list{display:flex;flex-direction:column;gap:8px}
+.sess-row{background:white;border:1px solid #e8e8e8;border-radius:12px;padding:12px 14px}
+.sess-top{display:flex;align-items:center;gap:10px}
+.sess-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sn-done{background:#e1f5ee;color:#085041}
+.sn-active{background:#e6f1fb;color:#0c447c}
+.sn-wait{background:#f5f5f5;color:#888}
+.sess-info{flex:1}
+.sess-label{font-size:13px;font-weight:700;color:#1a1a2e}
+.sess-date-text{font-size:11px;color:#888;margin-top:2px}
+.sess-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.sess-done-btn{font-size:11px;padding:5px 10px;border:1px solid #1d9e75;border-radius:8px;background:#e1f5ee;color:#085041;cursor:pointer;font-family:inherit;font-weight:600}
+.sess-edit-btn{font-size:11px;padding:5px 10px;border:1px solid #e8e8e8;border-radius:8px;background:white;color:#888;cursor:pointer;font-family:inherit;font-weight:600}
+.sess-done-badge{font-size:10px;padding:4px 10px;border-radius:20px;background:#e1f5ee;color:#085041;font-weight:700}
+.edit-panel{background:#f9f9f9;border-radius:10px;padding:10px 12px;margin-top:8px;display:none}
+.edit-panel.open{display:block}
+.edit-panel label{font-size:11px;color:#888;display:block;margin-bottom:5px;font-weight:600}
+.edit-panel input[type=date]{width:100%;font-size:13px;padding:8px 10px;border:1px solid #e8e8e8;border-radius:8px;background:white;color:#1a1a2e;font-family:inherit}
+.edit-actions{display:flex;gap:6px;margin-top:8px}
+.btn-save{flex:1;padding:8px;border-radius:8px;border:none;background:#1a1a2e;color:white;font-size:12px;cursor:pointer;font-family:inherit;font-weight:700}
+.btn-cancel{padding:8px 14px;border-radius:8px;border:1px solid #e8e8e8;background:white;color:#888;font-size:12px;cursor:pointer;font-family:inherit}
+
+.note-card{background:white;border:1px solid #e8e8e8;border-radius:14px;padding:12px 14px}
+.note-card textarea{width:100%;border:none;background:transparent;font-size:13px;color:#1a1a2e;resize:none;outline:none;font-family:inherit;line-height:1.6}
+.note-footer{display:flex;justify-content:flex-end;margin-top:6px}
+.note-footer button{font-size:12px;padding:6px 16px;border-radius:20px;border:1px solid #e8e8e8;background:white;color:#1a1a2e;cursor:pointer;font-family:inherit;font-weight:600}
+.saved-notes{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.saved-note{background:white;border:1px solid #e8e8e8;border-radius:10px;padding:10px 14px}
+.saved-note-d{font-size:10px;color:#aaa;margin-bottom:3px;font-weight:600}
+.saved-note-t{font-size:12px;color:#444;line-height:1.5;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="hdr">
+  <div class="logo">RA<span>GÜZELLİK</span></div>
+  <div><h1>Saç Bakım Programı</h1><p>Rukiye Altun · Bahçeşehir · 14 May 2026</p></div>
+</div>
+
+<div class="sec">Uyum Takibi</div>
+<div class="uyum-grid">
+  <div class="uyum-card">
+    <div class="uyum-title">İlaç Uyumu</div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 84 84">
+        <circle class="ring-bg" cx="42" cy="42" r="34"/>
+        <circle class="ring-fg" id="drugRing" cx="42" cy="42" r="34" stroke="#1d9e75" stroke-dasharray="0 214"/>
+      </svg>
+      <div class="ring-label">
+        <div class="ring-pct" id="drugPct">0%</div>
+        <div class="ring-sub-txt">uyum</div>
+      </div>
+    </div>
+    <div class="uyum-detail" id="drugDetail">Henüz veri yok</div>
+  </div>
+  <div class="uyum-card">
+    <div class="uyum-title">Seans Uyumu</div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 84 84">
+        <circle class="ring-bg" cx="42" cy="42" r="34"/>
+        <circle class="ring-fg" id="sessRing" cx="42" cy="42" r="34" stroke="#185fa5" stroke-dasharray="0 214"/>
+      </svg>
+      <div class="ring-label">
+        <div class="ring-pct" id="sessPct">0%</div>
+        <div class="ring-sub-txt">uyum</div>
+      </div>
+    </div>
+    <div class="uyum-detail" id="sessDetail">Henüz veri yok</div>
+  </div>
+</div>
+
+<div class="stats2">
+  <div class="stat"><div class="stat-n" id="statDays">0</div><div class="stat-l">Geçen gün</div></div>
+  <div class="stat"><div class="stat-n" id="statDone">0</div><div class="stat-l">Tamamlanan seans</div></div>
+</div>
+
+<div class="sec">Görünüm</div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('cal')">Takvim</button>
+  <button class="tab" onclick="switchTab('sess')">Seanslar</button>
+  <button class="tab" onclick="switchTab('notes')">Notlar</button>
+</div>
+
+<div id="tabCal">
+  <div class="cal-nav">
+    <button onclick="prevMonth()">&#8249;</button>
+    <span id="calTitle"></span>
+    <button onclick="nextMonth()">&#8250;</button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#1d9e75"></div>Tam (4/4)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#9fe1cb"></div>Yarım</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f09595"></div>Eksik</div>
+  </div>
+  <div class="day-detail" id="dayDetail" style="display:none">
+    <div class="dd-title" id="ddTitle"></div>
+    <div id="ddDoses"></div>
+  </div>
+</div>
+
+<div id="tabSess" style="display:none">
+  <div class="sessions-list" id="sessionsList"></div>
+</div>
+
+<div id="tabNotes" style="display:none">
+  <div class="note-card">
+    <textarea id="noteIn" rows="3" placeholder="Not ekle... (değişimler, gözlemler, yan etkiler)"></textarea>
+    <div class="note-footer"><button onclick="saveNote()">Kaydet</button></div>
+  </div>
+  <div class="saved-notes" id="savedNotes"></div>
+</div>
+
+</div>
+<script>
+const START=new Date('2026-05-14');
+const DRUGS=[{id:'h',name:'KRCderma H-360° PLUS',desc:'Saw Palmetto + Biotin'},{id:'s',name:'Topikal Magistral Serum',desc:'Hair Loss serum'}];
+const TIMES=['morning','evening'];
+const MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const DOWS=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const CIRC=2*Math.PI*34;
+
+let data={doses:{},sessions:[],notes:[]};
+try{const s=localStorage.getItem('sacv3');if(s)data=JSON.parse(s);}catch(e){}
+if(!data.doses)data.doses={};
+if(!data.notes)data.notes=[];
+if(!data.sessions||data.sessions.length===0){
+  data.sessions=Array.from({length:6},function(_,i){
+    var d=new Date(START);d.setMonth(d.getMonth()+i);
+    return{num:i+1,date:d.toISOString().slice(0,10),done:i===0};
+  });
+  save();
+}
+
+function save(){try{localStorage.setItem('sacv3',JSON.stringify(data));}catch(e){}}
+function doseKey(ds,drug,time){return ds+'_'+drug+'_'+time;}
+function isDone(ds,drug,time){return!!data.doses[doseKey(ds,drug,time)];}
+
+function toggleDose(ds,drug,time){
+  var k=doseKey(ds,drug,time);
+  if(data.doses[k])delete data.doses[k];else data.doses[k]=1;
+  save();updateAll();renderCal();renderDayDetail(ds);
+}
+
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+function dayDoseCount(ds){
+  var done=0;var total=DRUGS.length*TIMES.length;
+  DRUGS.forEach(function(dr){TIMES.forEach(function(t){if(isDone(ds,dr.id,t))done++;});});
+  return{done:done,total:total};
+}
+
+function updateAll(){
+  var now=new Date();
+  var days=Math.max(0,Math.floor((now-START)/86400000));
+  document.getElementById('statDays').textContent=days;
+
+  var totalDone=0,totalPossible=0;
+  for(var i=0;i<=days;i++){
+    var d=new Date(START);d.setDate(d.getDate()+i);
+    if(d>now)break;
+    var r=dayDoseCount(d.toISOString().slice(0,10));
+    totalDone+=r.done;totalPossible+=r.total;
+  }
+  var drugPct=totalPossible>0?Math.round(totalDone/totalPossible*100):0;
+  document.getElementById('drugPct').textContent=drugPct+'%';
+  document.getElementById('drugRing').setAttribute('stroke-dasharray',(drugPct/100*CIRC).toFixed(1)+' '+CIRC.toFixed(1));
+  document.getElementById('drugDetail').innerHTML='<strong>'+totalDone+'</strong>/'+totalPossible+' doz<br>'+days+' günlük takip';
+
+  var doneSess=data.sessions.filter(function(s){return s.done;}).length;
+  var sessPct=Math.round(doneSess/6*100);
+  document.getElementById('sessPct').textContent=sessPct+'%';
+  document.getElementById('sessRing').setAttribute('stroke-dasharray',(sessPct/100*CIRC).toFixed(1)+' '+CIRC.toFixed(1));
+  document.getElementById('sessDetail').innerHTML='<strong>'+doneSess+'</strong>/6 seans<br>tamamlandı';
+  document.getElementById('statDone').textContent=doneSess;
+}
+
+var calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+
+function renderCal(){
+  document.getElementById('calTitle').textContent=MONTHS[calMonth]+' '+calYear;
+  var grid=document.getElementById('calGrid');
+  grid.innerHTML=DOWS.map(function(d){return'<div class="cal-dow">'+d+'</div>';}).join('');
+  var first=new Date(calYear,calMonth,1);
+  var startDow=(first.getDay()+6)%7;
+  var days=new Date(calYear,calMonth+1,0).getDate();
+  var today=todayStr();var now=new Date();
+  for(var i=0;i<startDow;i++)grid.innerHTML+='<div class="cal-day"></div>';
+  for(var d=1;d<=days;d++){
+    var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var dt=new Date(calYear,calMonth,d);
+    var future=dt>now;var started=dt>=START;
+    var cls='cal-day';var dot='';
+    if(!started||future){cls+=' ';}
+    else{
+      var r=dayDoseCount(ds);
+      if(r.done===r.total){cls+=' full';dot='<div class="cal-dot"></div>';}
+      else if(r.done>0)cls+=' half';
+      else cls+=' miss';
+      cls+=' clickable';
+    }
+    if(ds===today)cls+=' today';
+    grid.innerHTML+='<div class="'+cls+'" onclick="clickDay(\''+ds+'\')">'+d+dot+'</div>';
+  }
+}
+
+function clickDay(ds){
+  var dt=new Date(ds+'T12:00:00');
+  if(dt>new Date()||dt<START)return;
+  renderDayDetail(ds);
+  document.getElementById('dayDetail').style.display='block';
+  document.getElementById('dayDetail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderDayDetail(ds){
+  var dt=new Date(ds+'T12:00:00');
+  document.getElementById('ddTitle').textContent=dt.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var dd=document.getElementById('ddDoses');dd.innerHTML='';
+  [{time:'morning',label:'Sabah',badge:'badge-m'},{time:'evening',label:'Akşam',badge:'badge-e'}].forEach(function(slot){
+    DRUGS.forEach(function(dr){
+      var on=isDone(ds,dr.id,slot.time);
+      dd.innerHTML+='<div class="dose-row">'
+        +'<div class="dose-chk'+(on?' on':'')+'" onclick="toggleDose(\''+ds+'\',\''+dr.id+'\',\''+slot.time+'\')">'
+        +'<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4,8 9,2.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+        +'<div style="flex:1"><div class="dose-name">'+dr.name+'</div><div class="dose-sub">'+dr.desc+'</div></div>'
+        +'<span class="'+slot.badge+'">'+slot.label+'</span></div>';
+    });
+  });
+}
+
+function prevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCal();}
+function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCal();}
+
+function renderSessions(){
+  var list=document.getElementById('sessionsList');list.innerHTML='';
+  var doneCnt=data.sessions.filter(function(s){return s.done;}).length;
+  data.sessions.forEach(function(s,i){
+    var dt=new Date(s.date+'T12:00:00');
+    var label=dt.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+    var numCls=s.done?'sn-done':(i===doneCnt?'sn-active':'sn-wait');
+    list.innerHTML+='<div class="sess-row">'
+      +'<div class="sess-top">'
+      +'<div class="sess-num '+numCls+'">'+s.num+'</div>'
+      +'<div class="sess-info"><div class="sess-label">Seans '+s.num+'</div><div class="sess-date-text">'+label+'</div></div>'
+      +'<div class="sess-actions">'
+      +(s.done
+        ?'<span class="sess-done-badge">Tamam</span>'
+        :'<button class="sess-done-btn" onclick="markSessionDone('+i+')">Tamam</button><button class="sess-edit-btn" onclick="openEdit('+i+')">Düzenle</button>'
+      )
+      +'</div></div>'
+      +'<div class="edit-panel" id="ep'+i+'">'
+      +'<label>Yeni tarih seç</label>'
+      +'<input type="date" id="ei'+i+'" value="'+s.date+'">'
+      +'<div class="edit-actions"><button class="btn-save" onclick="saveSessionDate('+i+')">Kaydet</button><button class="btn-cancel" onclick="closeEdit('+i+')">İptal</button></div>'
+      +'</div></div>';
+  });
+}
+
+function markSessionDone(i){data.sessions[i].done=true;save();updateAll();renderSessions();}
+function openEdit(i){document.getElementById('ep'+i).classList.add('open');}
+function closeEdit(i){document.getElementById('ep'+i).classList.remove('open');}
+function saveSessionDate(i){
+  var val=document.getElementById('ei'+i).value;
+  if(!val)return;
+  data.sessions[i].date=val;save();closeEdit(i);renderSessions();
+}
+
+function saveNote(){
+  var v=document.getElementById('noteIn').value.trim();if(!v)return;
+  data.notes.unshift({date:todayStr(),text:v});save();renderNotes();
+  document.getElementById('noteIn').value='';
+}
+function renderNotes(){
+  document.getElementById('savedNotes').innerHTML=data.notes.map(function(n){
+    var dt=new Date(n.date+'T12:00:00');
+    return'<div class="saved-note"><div class="saved-note-d">'+dt.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})+'</div><div class="saved-note-t">'+n.text+'</div></div>';
+  }).join('');
+}
+
+function switchTab(t){
+  document.getElementById('tabCal').style.display=t==='cal'?'block':'none';
+  document.getElementById('tabSess').style.display=t==='sess'?'block':'none';
+  document.getElementById('tabNotes').style.display=t==='notes'?'block':'none';
+  document.querySelectorAll('.tab').forEach(function(el,i){
+    el.classList.toggle('active',['cal','sess','notes'][i]===t);
+  });
+  if(t==='sess')renderSessions();
+  if(t==='notes')renderNotes();
+}
+
+updateAll();renderCal();
+var td=todayStr();
+if(new Date(td)>=START){renderDayDetail(td);document.getElementById('dayDetail').style.display='block';}
+</script>
+</body>
+</html>
